@@ -1,0 +1,193 @@
+<%- include ./partials/header %> <% include ./partials/sidebar %>
+
+<main id="main" class="main">
+  <!-- End Page Title -->
+
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Import Participant</h5>
+            <div class="row mb-3">
+              <label for="inputNumber" class="col-sm-2 col-form-label">
+                File Upload</label
+              >
+              <div class="col-sm-5">
+                <input class="form-control" type="file" id="file" name="file" />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="inputNumber" class="col-sm-2 col-form-label"></label>
+              <div class="col-sm-5">
+                <button
+                  id="importButton"
+                  onclick="uploadFile()"
+                  class="btn btn-primary"
+                  data-act="add"
+                >
+                  <i class="bi bi-plus-lg"></i> Tambah Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- start title -->
+    <div class="pagetitle">
+      <h1><%= title %></h1>
+    </div>
+    <!-- end title -->
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"></h5>
+            <!-- Bordered Table -->
+            <table id="tableUser" class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Event</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Doorprize</th>
+                  <th scope="col">Aksi</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <!-- End Bordered Table -->
+            <!-- modal popup -->
+            <div
+              class="modal fade"
+              id="modalPopup"
+              tabindex="-1"
+              aria-modal="true"
+              role="dialog"
+            >
+              <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      onClick="window.location.reload();"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="text-center">
+                      <i id="emoji" class="bi" style="font-size: 2.5rem"></i>
+                      <span id="message"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- end modal popup -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<% include ./partials/footer %> <% include ./partials/js %>
+<script>
+  var element = document.getElementById("emoji");
+  $(document).ready(function () {
+    var dataTable = $("#tableUser").DataTable({
+      processing: true,
+      serverSide: true,
+      serverMethod: "get",
+      ajax: {
+        url: "/participant/getdata",
+      },
+      columnDefs: [
+        {
+          targets: [0, 3, 4], // your case first column
+          className: "text-center",
+        },
+      ],
+      fnCreatedRow: function (row, data, index) {
+        $("td", row)
+          .eq(0)
+          .html(index + 1);
+      },
+      columns: [
+        { data: "id", name: "id" },
+        { data: "event.nameEvent", name: "event.nameEvent" },
+        { data: "name", name: "name" },
+        {
+          data: "doorprize",
+          render: function (data, type, row) {
+            return data ? data.doorprize : "";
+          },
+        },
+        {
+          data: "id",
+          render: function (data, type, row, meta) {
+            return (
+              '<button class="btn btn-danger" data-id="' +
+              data +
+              '" id="delete">Delete</button>'
+            );
+          },
+        },
+      ],
+    });
+  });
+
+  //upload participant
+  async function uploadFile() {
+    if (document.getElementById("file").files.length == 0) {
+      alert("Silahkan Pilih File Terlebih dahulu!");
+    } else {
+      let formData = new FormData();
+      formData.append("file", file.files[0]);
+      const response = await fetch("/participant/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      //console.log(data); // returns 200
+      $("#file").val("");
+      $("#message").html(
+        '<div class="alert alert-' + data.att + '">' + data.msg + "</div>"
+      );
+      element.classList.add(data.emoji);
+      $("#modalPopup").modal("show");
+      setTimeout(function () {
+        $("#modalPopup").modal("hide");
+        window.location.reload();
+      }, 3000);
+    }
+  }
+  //end upload participant
+
+  $(document).on("click", "#delete", function () {
+    var id = $(this).data("id");
+
+    if (confirm("Are you sure you want to delete this data?")) {
+      $.ajax({
+        url: "participant/delete",
+        method: "POST",
+        data: { id: id },
+        dataType: "JSON",
+        success: function (data) {
+          $("#message").html(
+            '<div class="alert alert-success">' + data.msg + "</div>"
+          );
+          $("#modalPopup").modal("show");
+          element.classList.add(data.emoji);
+          setTimeout(function () {
+            $("#modalPopup").modal("hide");
+            window.location.reload();
+          }, 3000);
+        },
+      });
+    }
+  });
+</script>

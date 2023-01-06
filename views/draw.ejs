@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>Sender</title>
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+
+    <!-- Favicons -->
+    <link href="assets/img/binusicon.png" rel="icon" />
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+      rel="stylesheet"
+    />
+
+    <!-- Vendor CSS Files -->
+    <link
+      href="assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="assets/vendor/bootstrap-icons/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet" />
+    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet" />
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet" />
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+
+  <body class="toggle-sidebar">
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+      <div class="d-flex align-items-center justify-content-between">
+        <a href="/" class="logo d-flex align-items-center">
+          <img src="/assets/img/ribbon.svg" style="margin-top: -2px" />
+          <div>
+            <img src="/assets/img/binus.png" class="img-100" alt="" />
+            <p class="jargon">People Innovation Excellence</p>
+          </div>
+        </a>
+        <!-- <i class="bi bi-list toggle-sidebar-btn"></i> -->
+      </div>
+      <!-- End Logo -->
+    </header>
+    <!-- End Header -->
+
+    <main id="main" class="main">
+      <section class="section dashboard mt-5">
+        <div class="row">
+          <!-- Left side columns -->
+          <div class="col-lg-10 center">
+            <div class="row">
+              <!-- Recent Sales -->
+              <div class="card">
+                <div class="card-body">
+                  <!-- Multi Columns Form -->
+                  <form method="post" id="formDraw" class="row g-3 mt-3">
+                    <div id="finish" class="text-center hidden">
+                      <a href="/event/<%= event %>">
+                        <button type="button" class="btn btn-secondary">
+                          Reset
+                        </button>
+                      </a>
+                      <button type="submit" class="btn btn-primary">
+                        Save
+                      </button>
+                    </div>
+                    <div id="start" class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-primary w-150"
+                        onclick="start('<%= qty %>','start')"
+                      >
+                        Start
+                      </button>
+                    </div>
+                    <div id="stop" class="text-center hidden">
+                      <button
+                        type="button"
+                        id="btn-submit"
+                        class="btn btn-secondary w-150"
+                        onclick="stop('<%= qty %>','stop')"
+                      >
+                        Stop
+                      </button>
+                    </div>
+                    <div class="mb-1"></div>
+                    <input type="hidden" name="event" value="<%= event %>" />
+                    <input
+                      type="hidden"
+                      name="doorprize"
+                      value="<%= doorprize %>"
+                    />
+                    <% for(var i = 0; i < qty;i++){ %>
+                    <div class="col-md-4 text-center">
+                      <button
+                        id="btn-x<%= [i] %>"
+                        class="bi bi-x-circle btn-clean hidden"
+                        type="button"
+                        onclick="coret('<%= [i] %>')"
+                      ></button>
+                      <input
+                        type="hidden"
+                        name="draw[]"
+                        id="drawId<%=[i]%>"
+                        readonly
+                      />
+                      <p class="input-90-in" id="draw<%= [i] %>">????????</p>
+                    </div>
+                    <% } %>
+                  </form>
+                  <!-- End Multi Columns Form -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End Left side columns -->
+        </div>
+      </section>
+    </main>
+    <!-- End #main -->
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="/assets/js/jquery-3.5.1.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/names.js"></script>
+    <script src="assets/js/rand.js"></script>
+    <script>
+      var NAMES;
+      $(document).ready(function () {
+        $.ajax({
+          url: "draw/getName",
+          method: "POST",
+          data: { event: "<%= event %>" },
+          dataType: "JSON",
+          success: function (data) {
+            // console.log(data.name);
+            NAMES = data.data;
+            if (data.data.length <= "<%= qty %>") {
+              window.alert("Jumlah Partisipan Kurang");
+              window.location.replace("/event/" + "<%= event %>");
+            }
+          },
+        });
+      });
+      $("#formDraw").on("submit", function (e) {
+        e.preventDefault();
+        $.ajax({
+          url: "draw/save",
+          method: "POST",
+          data: $("#formDraw").serialize(),
+          dataType: "JSON",
+          beforeSend: function () {
+            $("#btn-submit").attr("disabled", "disabled");
+          },
+          success: function (data) {
+            window.location.replace("/event/" + data.event);
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

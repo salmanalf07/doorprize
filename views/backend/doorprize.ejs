@@ -1,0 +1,334 @@
+<%- include ./partials/header %> <% include ./partials/sidebar %>
+
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1><%= title %></h1>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              <button
+                type="button"
+                id="addButton"
+                data-form="formAdd"
+                class="btn btn-primary"
+              >
+                <i class="bi bi-plus-lg"></i> Tambah Data
+              </button>
+            </h5>
+            <!-- Bordered Table -->
+            <table id="tableUser" class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Nama Acara</th>
+                  <th scope="col">Hadiah</th>
+                  <th scope="col">Jumlah Hadiah</th>
+                  <th scope="col">Sisa Hadiah</th>
+                  <th scope="col">Aksi</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <!-- End Bordered Table -->
+            <!-- modal input -->
+            <div
+              class="modal fade"
+              id="ModalAdd"
+              aria-modal="true"
+              role="dialog"
+            >
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="labelModal">Basic Modal</h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <form method="post" id="formAdd" class="row g-3">
+                      <input type="hidden" id="id" name="id" />
+                      <div class="col-md-12">
+                        <select
+                          id="event_id"
+                          name="event_id"
+                          class="form-select select2"
+                          required
+                        >
+                          <option value="">- Pilih Event -</option>
+                          <% if(event.length){ for(var i = 0; i< event.length;
+                          i++) {%>
+                          <option value="<%=event[i].id%>">
+                            <%=event[i].nameEvent%>
+                          </option>
+                          <% }} %>
+                        </select>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-floating">
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="doorprize"
+                            name="doorprize"
+                            placeholder="Your Doorprize"
+                            autocomplete="off"
+                            required
+                          />
+                          <label for="floatingName">Your Doorprize</label>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="form-floating">
+                          <input
+                            type="number"
+                            min="1"
+                            class="form-control"
+                            id="qty"
+                            name="qty"
+                            placeholder="Qty Doorprize"
+                            autocomplete="off"
+                            required
+                          />
+                          <label for="floatingName">Your Doorprize</label>
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          data-bs-dismiss="modal"
+                          onClick="window.location.reload();"
+                        >
+                          Close
+                        </button>
+                        <button
+                          id="saveButton"
+                          type="submit"
+                          class="btn btn-primary"
+                        >
+                          Save changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- end modal input -->
+            <!-- modal popup -->
+            <div
+              class="modal fade"
+              id="modalPopup"
+              tabindex="-1"
+              aria-modal="true"
+              role="dialog"
+            >
+              <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      onClick="window.location.reload();"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="text-center">
+                      <i id="emoji" class="bi" style="font-size: 2.5rem"></i>
+                      <span id="message"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- end modal popup -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<% include ./partials/footer %> <% include ./partials/js %>
+<script>
+  var element = document.getElementById("emoji");
+  $(document).ready(function () {
+    var dataTable = $("#tableUser").DataTable({
+      processing: true,
+      serverSide: true,
+      serverMethod: "get",
+      ajax: {
+        url: "/doorprize/getdata",
+      },
+      columnDefs: [
+        {
+          targets: [0, 3, 4, 5], // your case first column
+          className: "text-center",
+        },
+      ],
+      fnCreatedRow: function (row, data, index) {
+        $("td", row)
+          .eq(0)
+          .html(index + 1);
+      },
+      columns: [
+        { data: "id", name: "id" },
+        { data: "event.nameEvent", name: "event.nameEvent" },
+        { data: "doorprize", name: "doorprize" },
+        { data: "qty", name: "qty" },
+        {
+          data: null,
+          render: function (data, type, row) {
+            return data.qty - data.sisa;
+          },
+        },
+        {
+          data: "id",
+          render: function (data, type, row, meta) {
+            return (
+              '<button class="btn btn-secondary" data-form="formAdd" data-id="' +
+              data +
+              '" id="edit">Edit</button>' +
+              "&nbsp" +
+              '<button class="btn btn-danger" data-id="' +
+              data +
+              '" id="delete">Delete</button>'
+            );
+          },
+        },
+      ],
+    });
+  });
+
+  $(document).on("click", "#addButton", function (e) {
+    e.preventDefault();
+    reset_form($(this).data("form"));
+    //   console.log(uid);
+    $("#saveButton").attr("disabled", false);
+    $("#labelModal").text("Add Doorprize");
+    $("#saveButton").attr("data-act", "add");
+    $("#saveButton").show();
+
+    $("#ModalAdd").modal("show");
+  });
+
+  $(document).on("click", "#edit", function (e) {
+    e.preventDefault();
+    var uid = $(this).data("id");
+    reset_form($(this).data("form"));
+    //   console.log(uid);
+    $.ajax({
+      url: "doorprize/detail",
+      method: "POST",
+      data: { id: uid, action: "fetch" },
+      dataType: "JSON",
+      success: function (data) {
+        // console.log(data);
+        $("#id").val(data.id);
+        $("#event_id").val(data.event_id).change();
+        $("#doorprize").val(data.doorprize);
+        $("#qty").val(data.qty);
+
+        $("#saveButton").attr("data-act", "update");
+        $("#labelModal").text("Update Event");
+
+        $("#ModalAdd").modal("show");
+      },
+    });
+  });
+
+  $("#formAdd").on("submit", function (e) {
+    e.preventDefault();
+    var status = $("#saveButton").data("act");
+    // console.log($("#saveButton").data("act"));
+    if (status == "add") {
+      $.ajax({
+        url: "doorprize/create",
+        method: "POST",
+        data: $("#formAdd").serialize(),
+        dataType: "JSON",
+        beforeSend: function () {
+          $("#saveButton").attr("disabled", "disabled");
+        },
+        success: function (data) {
+          // $("#saveButton").attr("disabled", false);
+          $("#message").html(
+            '<div class="alert alert-' + data.att + '">' + data.msg + "</div>"
+          );
+          $("#ModalAdd").modal("hide");
+          element.classList.add(data.emoji);
+          $("#modalPopup").modal("show");
+          setTimeout(function () {
+            $("#modalPopup").modal("hide");
+            window.location.reload();
+          }, 3000);
+        },
+      });
+    }
+    if (status == "update") {
+      $.ajax({
+        url: "doorprize/update",
+        method: "POST",
+        data: $("#formAdd").serialize(),
+        dataType: "JSON",
+        beforeSend: function () {
+          $("#saveButton").attr("disabled", "disabled");
+        },
+        success: function (data) {
+          // $("#saveButton").attr("disabled", false);
+          $("#message").html(
+            '<div class="alert alert-' + data.att + '">' + data.msg + "</div>"
+          );
+          $("#ModalAdd").modal("hide");
+          element.classList.add(data.emoji);
+          $("#modalPopup").modal("show");
+          setTimeout(function () {
+            $("#modalPopup").modal("hide");
+            window.location.reload();
+          }, 3000);
+        },
+      });
+    }
+  });
+
+  $(document).on("click", "#delete", function () {
+    var id = $(this).data("id");
+
+    if (confirm("Are you sure you want to delete this data?")) {
+      $.ajax({
+        url: "doorprize/delete",
+        method: "POST",
+        data: { id: id },
+        dataType: "JSON",
+        success: function (data) {
+          $("#message").html(
+            '<div class="alert alert-success">' + data.msg + "</div>"
+          );
+          $("#modalPopup").modal("show");
+          element.classList.add(data.emoji);
+          setTimeout(function () {
+            $("#modalPopup").modal("hide");
+            window.location.reload();
+          }, 3000);
+        },
+      });
+    }
+  });
+  $(document).ready(function () {
+    $(".select2").select2({
+      dropdownParent: $("#ModalAdd"),
+    });
+  });
+</script>
