@@ -30,7 +30,6 @@ module.exports = {
   datatable: async (req, res) => {
     try {
       const session = req.session.user;
-      const page = parseInt(req.query.start) || 0;
       const limit = parseInt(req.query.length) || 10;
       const search = req.query.search["value"] || "";
 
@@ -60,7 +59,6 @@ module.exports = {
         var orderColumn = req.query.columns[ColumnId]["data"];
         var order = req.query.order["0"]["dir"];
       }
-      const offset = limit * page;
       const totalRows = await Doorprize.count({
         include: [
           {
@@ -70,6 +68,8 @@ module.exports = {
         where: where,
       });
       const totalPage = Math.ceil(totalRows / limit);
+      const page = Math.min(parseInt(req.query.start) / limit, totalPage - 1);
+      const offset = page * limit;
       const result = await Doorprize.findAll({
         include: [
           {
@@ -87,10 +87,11 @@ module.exports = {
         page: page,
         limit: limit,
         iTotalRecords: totalRows,
-        iTotalDisplayRecords: totalPage,
+        iTotalDisplayRecords: totalRows,
       });
     } catch (error) {
       console.log(error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
   },
 

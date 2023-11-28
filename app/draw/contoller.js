@@ -59,12 +59,16 @@ module.exports = {
           );
         }
 
-        DoorprizeModel.increment("sisa", {
-          by: draw.length,
-          where: {
-            id: doorprize,
-          },
-        });
+        const data = await DoorprizeModel.findByPk(doorprize);
+
+        await DoorprizeModel.update(
+          { sisa: data.sisa + draw.length },
+          {
+            where: {
+              id: doorprize,
+            },
+          }
+        );
       }
 
       if (skip) {
