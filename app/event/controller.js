@@ -46,7 +46,7 @@ module.exports = {
 
       if (typeof req.query.order == "undefined") {
         var orderColumn = "id";
-        var order = "asc";
+        var order = "desc";
       } else {
         var ColumnId = req.query.order["0"]["column"] || 0;
         var orderColumn = req.query.columns[ColumnId]["data"];
