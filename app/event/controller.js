@@ -1,6 +1,7 @@
 var Event = require("../event/model");
 var Participant = require("../draw/model");
 var Doorprize = require("../home/model");
+var Priority = require("../priority/model");
 var session = require("express-session");
 const { Sequelize, Op } = require("sequelize");
 const excel = require("exceljs");
@@ -249,12 +250,18 @@ module.exports = {
     try {
       let workbook = new excel.Workbook();
       let worksheet = workbook.addWorksheet("Import Doorprize");
+      let worksheet2 = workbook.addWorksheet("Petunjuk Prioritas");
 
       worksheet.columns = [
         {
           header: "event_id",
           key: "id",
           width: 10,
+        },
+        {
+          header: "priorityId",
+          width: 25,
+          key: "priorityId",
         },
         { header: "name", key: "name", width: 25 },
       ];
@@ -276,6 +283,7 @@ module.exports = {
 
       Result.forEach((participants) => {
         participants.name = "Salman";
+        participants.priorityId = "1";
         worksheet.addRow(participants);
         counter++;
         worksheet.getRow(counter).eachCell((cell) => {
@@ -283,7 +291,37 @@ module.exports = {
         });
       });
 
+      worksheet2.columns = [
+        {
+          header: "Id",
+          key: "id",
+          width: 10,
+        },
+        {
+          header: "Type Participant",
+          width: 25,
+          key: "priorityName",
+        },
+      ];
+
+      const prioritys = await Priority.findAll();
+
+      let counter2 = 1;
+
+      prioritys.forEach((data) => {
+        worksheet2.addRow(data);
+        counter2++;
+        worksheet2.getRow(counter2).eachCell((cell) => {
+          cell.border = borderStyles;
+        });
+      });
+
       worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.border = borderStyles;
+      });
+
+      worksheet2.getRow(1).eachCell((cell) => {
         cell.font = { bold: true };
         cell.border = borderStyles;
       });

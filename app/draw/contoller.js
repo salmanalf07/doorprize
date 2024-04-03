@@ -19,7 +19,14 @@ module.exports = {
 
   names: async (req, res) => {
     const event = req.body.event;
+    const doorprize = req.body.doorprize;
     try {
+      const priority = await DoorprizeModel.findByPk(doorprize);
+      var Prioritys = JSON.parse(priority.priority);
+      const whereClause = {};
+      if (!Prioritys.find((item) => item === 1)) {
+        whereClause.priorityId = Prioritys;
+      }
       const names = await Participant.findAll({
         attributes: ["id", "name"],
         include: {
@@ -31,6 +38,7 @@ module.exports = {
         where: {
           doorprize_id: null,
           skip: null,
+          ...whereClause,
         },
       });
 

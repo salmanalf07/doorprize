@@ -8,7 +8,7 @@ var flash = require("connect-flash");
 var session = require("express-session");
 
 var db = require("./database/database");
-var syncData = require("./app/home/model");
+var syncData = require("./app/priority/model");
 
 var indexRouter = require("./app/home/route");
 var drawRouter = require("./app/draw/route");

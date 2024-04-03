@@ -49,6 +49,7 @@
               <thead>
                 <tr>
                   <th scope="col">#</th>
+                  <th scope="col">Type</th>
                   <th scope="col">Event</th>
                   <th scope="col">Name</th>
                   <th scope="col">Doorprize</th>
@@ -107,7 +108,7 @@
       },
       columnDefs: [
         {
-          targets: [0, 3, 4], // your case first column
+          targets: [0, 4, 5], // your case first column
           className: "text-center",
         },
       ],
@@ -118,6 +119,7 @@
       },
       columns: [
         { data: "id", name: "id" },
+        { data: "priority.priorityName", name: "priority.priorityName" },
         { data: "event.nameEvent", name: "event.nameEvent" },
         { data: "name", name: "name" },
         {

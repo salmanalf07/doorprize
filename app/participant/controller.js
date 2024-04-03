@@ -1,6 +1,7 @@
 var Doorprize = require("../home/model");
 var Event = require("../event/model");
 var Participant = require("../draw/model");
+var Priority = require("../priority/model");
 const { Op } = require("sequelize");
 const fs = require("fs");
 const readXlsxFile = require("read-excel-file/node");
@@ -64,6 +65,9 @@ module.exports = {
           {
             model: Doorprize,
           },
+          {
+            model: Priority,
+          },
         ],
         where: where,
       });
@@ -78,6 +82,9 @@ module.exports = {
           },
           {
             model: Doorprize,
+          },
+          {
+            model: Priority,
           },
         ],
         offset: offset,
@@ -133,7 +140,8 @@ module.exports = {
         rows.forEach((row) => {
           let Participant = {
             event_id: row[0],
-            name: row[1],
+            priorityId: row[1],
+            name: row[2],
           };
 
           participants.push(Participant);

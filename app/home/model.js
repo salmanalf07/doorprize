@@ -22,6 +22,9 @@ const Doorprize = db.define(
     sisa: {
       type: DataTypes.INTEGER,
     },
+    priority: {
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,

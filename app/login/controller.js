@@ -10,7 +10,6 @@ module.exports = {
       const alertMessage = req.flash("alertMessage");
 
       const alert = { message: alertMessage };
-
       if (req.session.user === null || req.session.user === undefined) {
         res.render("./backend/login", {
           title: "Express JS",
@@ -18,6 +17,8 @@ module.exports = {
           page_name: "Login Apps Doorprize",
           alert,
         });
+      } else if (req.originalUrl === "/") {
+        res.redirect("/dashboard");
       } else {
         res.redirect("/" + req.originalUrl);
       }

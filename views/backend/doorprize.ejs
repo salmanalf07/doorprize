@@ -99,8 +99,25 @@
                             autocomplete="off"
                             required
                           />
-                          <label for="floatingName">Your Doorprize</label>
+                          <label for="floatingName">Number Of Doorprize</label>
                         </div>
+                      </div>
+                      <div class="col-md-12">
+                        <label for="priority">Priority</label>
+                        <select
+                          id="priority"
+                          name="priority[]"
+                          class="form-select select2"
+                          multiple="multiple"
+                          required
+                        >
+                          <% if(priority.length){ for(var i = 0; i<
+                          priority.length; i++) {%>
+                          <option value="<%=priority[i].id%>">
+                            <%=priority[i].priorityName%>
+                          </option>
+                          <% }} %>
+                        </select>
                       </div>
                       <div class="text-center">
                         <button
@@ -240,6 +257,8 @@
         $("#event_id").val(data.event_id).change();
         $("#doorprize").val(data.doorprize);
         $("#qty").val(data.qty);
+        var dataArray = JSON.parse(data.priority);
+        $("#priority").val(dataArray).trigger("change");
 
         $("#saveButton").attr("data-act", "update");
         $("#labelModal").text("Update Event");

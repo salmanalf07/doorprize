@@ -2,6 +2,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 var db = require("../../database/database");
 var Events = require("../event/model");
 var Home = require("../home/model");
+var Priority = require("../priority/model");
 
 const Participant = db.define(
   "participants",
@@ -12,6 +13,9 @@ const Participant = db.define(
       primaryKey: true,
     },
     event_id: {
+      type: DataTypes.BIGINT.UNSIGNED,
+    },
+    priorityId: {
       type: DataTypes.BIGINT.UNSIGNED,
     },
     name: {
@@ -37,6 +41,9 @@ Participant.belongsTo(Home, {
 
 Participant.belongsTo(Events, {
   foreignKey: "event_id",
+});
+Participant.belongsTo(Priority, {
+  foreignKey: "priorityId",
 });
 
 (async () => {

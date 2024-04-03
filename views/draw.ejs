@@ -147,11 +147,12 @@
         $.ajax({
           url: "draw/getName",
           method: "POST",
-          data: { event: "<%= event %>" },
+          data: { event: "<%= event %>", doorprize: "<%= doorprize %>" },
           dataType: "JSON",
           success: function (data) {
             // console.log(data.name);
             NAMES = data.data;
+            console.log(NAMES);
             if (data.data.length <= "<%= qty %>") {
               window.alert("Jumlah Partisipan Kurang");
               window.location.replace("/event/" + "<%= event %>");

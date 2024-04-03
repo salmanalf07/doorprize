@@ -2,6 +2,7 @@ var Doorprize = require("../home/model");
 var Event = require("../event/model");
 const { Op } = require("sequelize");
 const Users = require("../login/model");
+const Priority = require("../priority/model");
 
 module.exports = {
   index: async (req, res) => {
@@ -15,12 +16,14 @@ module.exports = {
         attributes: ["id", "user_id", "nameEvent"],
         where: wheresession,
       });
+      const priority = await Priority.findAll();
       res.render("backend/doorprize", {
         title: "List Doorprize",
         page_name: "doorprize",
         page_open: "",
         session: req.session.user,
         event: nameEvent,
+        priority: priority,
       });
     } catch (error) {
       console.log(error);
@@ -107,12 +110,13 @@ module.exports = {
   },
 
   create: async (req, res) => {
-    const { event_id, doorprize, qty } = req.body;
+    const { event_id, doorprize, qty, priority } = req.body;
     try {
       const created = await Doorprize.create({
         event_id: event_id,
         doorprize: doorprize,
         qty: qty,
+        priority: JSON.stringify(priority),
       });
       if (created) {
         res.json({
@@ -152,7 +156,7 @@ module.exports = {
 
   update: async (req, res) => {
     const session = req.session.user;
-    const { id, doorprize, qty } = req.body;
+    const { id, doorprize, qty, priority } = req.body;
     try {
       const Doorprizes = await Doorprize.findByPk(id, {
         include: [
@@ -168,6 +172,7 @@ module.exports = {
         Doorprizes.set({
           doorprize: doorprize,
           qty: qty,
+          priority: JSON.stringify(priority),
         });
         await Doorprizes.save();
         res.json({
